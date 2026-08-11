@@ -84,6 +84,14 @@ if ('IntersectionObserver' in window && !reducedMotion.matches) {
     { threshold: 0.12, rootMargin: '0px 0px -4% 0px' },
   )
   revealElements.forEach((element) => observer.observe(element))
+
+  const animationObserver = new IntersectionObserver(
+    (entries) => entries.forEach((entry) => {
+      entry.target.classList.toggle('animations-paused', !entry.isIntersecting)
+    }),
+    { rootMargin: '25% 0px' },
+  )
+  document.querySelectorAll('.hero, .story-section, .ending').forEach((region) => animationObserver.observe(region))
 } else {
   revealElements.forEach((element) => element.classList.add('is-visible'))
 }
@@ -109,10 +117,15 @@ document.querySelectorAll('.pixel-petals').forEach((petalField, fieldIndex) => {
 })
 
 if (!reducedMotion.matches) {
+  const heroMountains = document.querySelector('.hero-mountains')
   let parallaxFrame
+  let lastParallaxOffset
   const updateParallax = () => {
     const offset = Math.min(window.scrollY * 0.055, 30)
-    document.documentElement.style.setProperty('--parallax-y', `${offset}px`)
+    if (offset !== lastParallaxOffset) {
+      heroMountains.style.setProperty('--parallax-y', `${offset}px`)
+      lastParallaxOffset = offset
+    }
     parallaxFrame = undefined
   }
   window.addEventListener('scroll', () => {
@@ -158,7 +171,9 @@ function fadeVolume(target, duration = 650) {
 }
 
 function ensureSynth() {
-  synthContext ||= new AudioContext()
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext
+  if (!AudioContextClass) throw new Error('Web Audio API is unavailable')
+  synthContext ||= new AudioContextClass()
   if (!synthMaster) {
     synthMaster = synthContext.createGain()
     synthMaster.gain.value = 0.0001
@@ -180,20 +195,26 @@ function playSynthNote(frequency) {
 
 async function startSynthMusic() {
   if (synthTimer) return
-  ensureSynth()
-  window.clearTimeout(synthStopTimer)
-  await synthContext.resume()
-  synthMaster.gain.cancelScheduledValues(synthContext.currentTime)
-  synthMaster.gain.setValueAtTime(Math.max(0.0001, synthMaster.gain.value), synthContext.currentTime)
-  synthMaster.gain.linearRampToValueAtTime(0.035, synthContext.currentTime + 0.55)
-  playSynthNote(synthMelody[noteIndex])
-  synthTimer = window.setInterval(() => {
-    noteIndex = (noteIndex + 1) % synthMelody.length
+  try {
+    ensureSynth()
+    window.clearTimeout(synthStopTimer)
+    await synthContext.resume()
+    synthMaster.gain.cancelScheduledValues(synthContext.currentTime)
+    synthMaster.gain.setValueAtTime(Math.max(0.0001, synthMaster.gain.value), synthContext.currentTime)
+    synthMaster.gain.linearRampToValueAtTime(0.2, synthContext.currentTime + 0.55)
     playSynthNote(synthMelody[noteIndex])
-  }, 310)
-  currentMusicMode = 'synth'
-  setMusicState(true)
-  audioStatus.textContent = '未检测到背景音乐文件，正在播放合成像素旋律'
+    synthTimer = window.setInterval(() => {
+      noteIndex = (noteIndex + 1) % synthMelody.length
+      playSynthNote(synthMelody[noteIndex])
+    }, 310)
+    currentMusicMode = 'synth'
+    setMusicState(true)
+    audioStatus.textContent = '未检测到背景音乐文件，正在播放合成像素旋律'
+  } catch {
+    currentMusicMode = undefined
+    setMusicState(false)
+    audioStatus.textContent = '浏览器暂未允许播放背景音乐，请检查静音设置后重试'
+  }
 }
 
 function stopSynthMusic() {
@@ -221,7 +242,7 @@ async function playMusic() {
     await music.play()
     currentMusicMode = 'file'
     setMusicState(true)
-    await fadeVolume(0.42)
+    await fadeVolume(0.2)
   } catch (error) {
     if (music.error || error?.name === 'NotSupportedError') {
       fileUnavailable = true
@@ -250,6 +271,7 @@ music.addEventListener('error', () => {
   if (currentMusicMode === 'file') startSynthMusic()
 })
 musicButton.addEventListener('click', () => { isMusicPlaying() ? pauseMusic() : playMusic() })
+window.setTimeout(() => { playMusic() }, 0)
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {

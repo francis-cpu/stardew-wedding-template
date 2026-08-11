@@ -79,13 +79,13 @@ https://uri.amap.com/search?keyword=<地点>&src=stardew-wedding&callnative=1
 
 ## 背景音乐
 
-如果你有已授权的背景音乐，将它命名为 `wedding-bgm.mp3`，放到以下路径：
+项目已提供一首默认背景音乐。若你有已授权的音乐，可将其命名为 `wedding-bgm.mp3` 并替换以下文件：
 
 ```text
 assets/wedding-bgm.mp3
 ```
 
-建议使用 96–128kbps MP3 并控制在约 2MB。文件不存在、格式错误或浏览器不支持时，页面会自动改用内置的合成像素旋律。iOS、Android 和微信通常禁止自动播放，访客需点击右下角音乐按钮。
+建议使用 96–192kbps MP3 并控制在约 2MB。文件不存在、格式错误或浏览器不支持时，点击右下角音乐按钮会尝试播放内置的合成像素旋律。iOS、Android 和微信通常禁止自动播放，访客需点击该按钮开始播放。
 
 ## 构建与发布
 
@@ -108,4 +108,4 @@ npm run build
 - 仓库中的 HTML、CSS 和 JavaScript 代码使用 MIT 许可证，见 [LICENSE](LICENSE)。
 - 中文像素字体 Fusion Pixel Font 使用 OFL-1.1，见 [assets/fonts/OFL-Fusion-Pixel.txt](assets/fonts/OFL-Fusion-Pixel.txt)。
 - `assets/` 中的 Stardew Valley 相关素材不属于 MIT 授权范围，相关权利归 ConcernedApe 及各自权利人所有。本项目为非官方粉丝创作，请自行确认公开发布、再分发和商业使用的授权边界。
-- 背景音乐不随仓库提供；请自行提供已授权的 `wedding-bgm.mp3`。
+- 仓库提供默认的 `assets/wedding-bgm.mp3`；替换音乐前请确认拥有相应使用授权。

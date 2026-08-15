@@ -14,6 +14,25 @@ function missingDatabase(env) {
   return !env?.DB || typeof env.DB.prepare !== 'function'
 }
 
+const submissionWindow = 15 * 60 * 1000
+const submissionBlock = 30 * 60 * 1000
+const maxSubmissions = 10
+
+async function submissionRecord(db, ip) {
+  return db.prepare('SELECT submissions, first_submitted_at, blocked_until FROM rsvp_submissions WHERE ip = ?').bind(ip).first()
+}
+
+async function recordSubmission(db, ip, record, now) {
+  const withinWindow = record && now - record.first_submitted_at < submissionWindow
+  const submissions = withinWindow ? record.submissions + 1 : 1
+  const firstSubmittedAt = withinWindow ? record.first_submitted_at : now
+  const blockedUntil = submissions >= maxSubmissions ? now + submissionBlock : 0
+  await db.prepare(`
+    INSERT INTO rsvp_submissions (ip, submissions, first_submitted_at, blocked_until) VALUES (?, ?, ?, ?)
+    ON CONFLICT(ip) DO UPDATE SET submissions = excluded.submissions, first_submitted_at = excluded.first_submitted_at, blocked_until = excluded.blocked_until
+  `).bind(ip, submissions, firstSubmittedAt, blockedUntil).run()
+}
+
 function configurationError() {
   return json({ error: 'RSVP 尚未完成配置，请联系邀请函所有者。' }, { status: 503 })
 }
@@ -46,6 +65,11 @@ function validate(body) {
 
 export async function onRequestPost({ request, env }) {
   if (missingDatabase(env)) return configurationError()
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown'
+  const now = Date.now()
+  const record = await submissionRecord(env.DB, ip)
+  if (record?.blocked_until > now) return json({ error: '提交过于频繁，请稍后再试。' }, { status: 429 })
+
   let body
   let rsvp
   try {
@@ -55,7 +79,7 @@ export async function onRequestPost({ request, env }) {
     return json({ error: error.message || '填写的信息不正确。' }, { status: 400 })
   }
 
-  const now = new Date().toISOString()
+  const createdAt = new Date().toISOString()
   if (body.id || body.editToken) {
     if (!body.id || !body.editToken) return json({ error: '缺少修改凭证。' }, { status: 401 })
     const existing = await env.DB.prepare('SELECT edit_token_hash FROM rsvps WHERE id = ?').bind(text(body.id, 80)).first()
@@ -66,8 +90,9 @@ export async function onRequestPost({ request, env }) {
       UPDATE rsvps
       SET guest_name = ?, attendance = ?, party_size = ?, needs_accommodation = ?, check_in_at = ?, check_out_at = ?, phone = ?, message = ?, updated_at = ?
       WHERE id = ?
-    `).bind(rsvp.guestName, rsvp.attendance, rsvp.partySize, Number(rsvp.needsAccommodation), rsvp.checkInAt, rsvp.checkOutAt, rsvp.phone, rsvp.message, now, body.id).run()
-    return json({ id: body.id, updatedAt: now })
+    `).bind(rsvp.guestName, rsvp.attendance, rsvp.partySize, Number(rsvp.needsAccommodation), rsvp.checkInAt, rsvp.checkOutAt, rsvp.phone, rsvp.message, createdAt, body.id).run()
+    await recordSubmission(env.DB, ip, record, now)
+    return json({ id: body.id, updatedAt: createdAt })
   }
 
   const id = crypto.randomUUID()
@@ -75,8 +100,9 @@ export async function onRequestPost({ request, env }) {
   await env.DB.prepare(`
     INSERT INTO rsvps (id, guest_name, attendance, party_size, needs_accommodation, check_in_at, check_out_at, phone, message, edit_token_hash, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(id, rsvp.guestName, rsvp.attendance, rsvp.partySize, Number(rsvp.needsAccommodation), rsvp.checkInAt, rsvp.checkOutAt, rsvp.phone, rsvp.message, await sha256(editToken), now, now).run()
-  return json({ id, editToken, createdAt: now }, { status: 201 })
+  `).bind(id, rsvp.guestName, rsvp.attendance, rsvp.partySize, Number(rsvp.needsAccommodation), rsvp.checkInAt, rsvp.checkOutAt, rsvp.phone, rsvp.message, await sha256(editToken), createdAt, createdAt).run()
+  await recordSubmission(env.DB, ip, record, now)
+  return json({ id, editToken, createdAt }, { status: 201 })
 }
 
 export async function onRequestGet({ request, env }) {

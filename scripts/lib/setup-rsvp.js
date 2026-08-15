@@ -11,7 +11,12 @@ export async function configureRsvp(input, deps) {
     await deps.ensureLogin()
     const projects = JSON.parse(await deps.run('wrangler', ['pages', 'project', 'list', '--json']))
     if (!projects.some((project) => project.name === projectName)) {
-      await deps.run('wrangler', ['pages', 'project', 'create', projectName, '--production-branch', 'main'], { stdio: 'inherit' })
+      try {
+        await deps.run('wrangler', ['pages', 'project', 'create', projectName, '--production-branch', 'main'], { stdio: 'inherit' })
+      } catch (error) {
+        const alreadyExists = error?.code === 8000002 || /\[code:\s*8000002\]/.test(error?.message ?? '')
+        if (!alreadyExists) throw error
+      }
     }
 
     await deps.ensureD1Binding(projectName)

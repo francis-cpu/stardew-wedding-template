@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { stdin as input, stdout as output } from 'node:process'
 import { createInterface } from 'node:readline/promises'
 import { configureWranglerProject } from './lib/cloudflare-config.js'
-import { deployRsvp } from './lib/deploy-rsvp.js'
+import { deployRsvp, withLocalWranglerConfig } from './lib/deploy-rsvp.js'
 import { runCommand as run } from './lib/run-command.js'
 import { configureRsvp } from './lib/setup-rsvp.js'
 
@@ -88,6 +88,10 @@ async function deploy() {
     hasLocalWrangler: true,
     hasEnableMarker: (await readLocalRsvpState()) !== null,
     run,
+    withLocalWrangler: (callback) => withLocalWranglerConfig({
+      defaultConfigUrl: wranglerConfigUrl,
+      localConfigUrl: localWranglerUrl,
+    }, callback),
   })
 }
 

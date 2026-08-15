@@ -93,11 +93,13 @@ Create tests for these exact states:
 assert.deepEqual(createDeploymentPlan({ hasLocalWrangler: false, hasEnableMarker: false }), {
   buildArgs: ['run', 'build'],
   deployArgs: ['pages', 'deploy', 'dist'],
+  useLocalWrangler: false,
 })
 
 assert.deepEqual(createDeploymentPlan({ hasLocalWrangler: true, hasEnableMarker: true }), {
   buildArgs: ['run', 'build', '--', '--mode', 'rsvp'],
-  deployArgs: ['pages', 'deploy', 'dist', '--config', 'wrangler.rsvp.jsonc'],
+  deployArgs: ['pages', 'deploy', 'dist'],
+  useLocalWrangler: true,
 })
 
 assert.throws(
@@ -116,7 +118,7 @@ Expected: FAIL because the deployment selector does not exist.
 
 - [ ] **Step 3: Implement the selector and executable deployment wrapper**
 
-Implement `createDeploymentPlan` as a pure function. Implement `deploy()` to run `npm test`, the selected Vite build, and the selected `wrangler pages deploy` command. `scripts/deploy.js` should detect `.env.rsvp.local` and `wrangler.rsvp.jsonc` with `fs.access`, then execute the plan through `runCommand`.
+Implement `createDeploymentPlan` as a pure function. Implement `deploy()` to run `npm test`, the selected Vite build, and the selected `wrangler pages deploy` command. Because Pages rejects custom `--config` paths, local deployment must temporarily copy `wrangler.rsvp.jsonc` over the root `wrangler.jsonc`, call Pages without `--config`, and restore the tracked default in `finally`. `scripts/deploy.js` should detect `.env.rsvp.local` and `wrangler.rsvp.jsonc` with `fs.access`, then execute the plan through `runCommand`.
 
 Change package scripts to:
 

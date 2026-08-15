@@ -1,0 +1,16 @@
+export function json(data, init = {}) {
+  const headers = new Headers(init.headers)
+  headers.set('Content-Type', 'application/json; charset=utf-8')
+  headers.set('Cache-Control', 'no-store')
+  return new Response(JSON.stringify(data), { ...init, headers })
+}
+
+export async function readJson(request) {
+  const contentType = request.headers.get('Content-Type') || ''
+  if (!contentType.includes('application/json')) throw new Error('请求格式不正确。')
+  return request.json()
+}
+
+export function methodNotAllowed() {
+  return json({ error: '不支持的请求方式。' }, { status: 405 })
+}

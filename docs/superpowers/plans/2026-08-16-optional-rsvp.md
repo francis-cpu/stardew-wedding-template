@@ -115,7 +115,7 @@ if (rsvpConfig.enabled) {
   document.querySelectorAll('[data-rsvp-ui], [data-rsvp-shortcut]').forEach((element) => {
     element.hidden = false
   })
-  import('./rsvp-client.js')
+  import('./rsvp-client.js').then(({ initializeRsvp }) => initializeRsvp(rsvpConfig))
 }
 ```
 
@@ -299,7 +299,8 @@ import test from 'node:test'
 const source = await readFile(new URL('../rsvp-client.js', import.meta.url), 'utf8')
 
 test('uses the configured API and preserves edits locally', () => {
-  assert.match(source, /import rsvpConfig from '.\/config\/rsvp\.json' with \{ type: 'json' \}/)
+  assert.doesNotMatch(source, /import rsvpConfig/)
+  assert.match(source, /export function initializeRsvp\(rsvpConfig\)/)
   assert.match(source, /fetch\(rsvpConfig\.apiUrl/)
   assert.match(source, /stardew-wedding-rsvp/)
 })
@@ -320,13 +321,9 @@ Expected: FAIL because the initial empty module has no API or validation logic�
 
 - [ ] **Step 3: 移植客户端逻辑**
 
-将 `/Users/zhoujingtian/Desktop/stardew/app.js` 中从 `const rsvpForm` 到 `#rsvp-edit` 点击处理器的完整逻辑复制到 `rsvp-client.js`，并在文件顶部加入：
+将 `/Users/zhoujingtian/Desktop/stardew/app.js` 中从 `const rsvpForm` 到 `fillRsvpForm(savedRsvp)` 的完整逻辑复制到 `rsvp-client.js`，作为导出函数 `initializeRsvp(rsvpConfig)` 的函数体。
 
-```js
-import rsvpConfig from './config/rsvp.json' with { type: 'json' }
-```
-
-把原实现中的：
+由 `app.js` 动态导入后调用 `initializeRsvp(rsvpConfig)`，把原实现中的：
 
 ```js
 fetch(weddingConfig.rsvpApiUrl, {
@@ -367,7 +364,7 @@ fetch(rsvpConfig.apiUrl, {
 
 Run: `node --test tests/rsvp-client.test.js tests/rsvp-feature-flag.test.js && npm run build`
 
-Expected: 4 tests passed；build exits 0；构建产物包含按需 RSVP chunk。
+Expected: 4 tests passed；build exits 0；默认关闭构建不会输出 RSVP chunk，Task 7 再验证开启构建会输出该 chunk。
 
 - [ ] **Step 6: 提交客户端**
 

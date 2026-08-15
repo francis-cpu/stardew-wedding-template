@@ -77,7 +77,7 @@ if (rsvpConfig.enabled) {
   document.querySelectorAll('[data-rsvp-ui], [data-rsvp-shortcut]').forEach((element) => {
     element.hidden = false
   })
-  import('./rsvp-client.js')
+  import('./rsvp-client.js').then(({ initializeRsvp }) => initializeRsvp(rsvpConfig))
 }
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')

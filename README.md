@@ -96,7 +96,7 @@ assets/wedding-bgm.mp3
 ### 开启前准备
 
 - 安装 Node.js 22 或更高版本，并先在项目目录运行 `npm install`。
-- 准备一个可登录的 Cloudflare 账号，以及至少 12 个字符的独立管理员密码。
+- 准备一个可登录的 Cloudflare 账号，以及至少 6 个字符的独立管理员密码。
 - 确定 Pages 项目名。若网站地址是 `https://example.pages.dev`，项目名就是 `example`；已有项目会直接复用，不会再创建同名项目。
 - 确认账号可以使用 Pages、Pages Functions 和 D1，并了解它们会计入 Cloudflare 对应额度。
 
@@ -112,16 +112,16 @@ npm run setup:rsvp
 
 随后向导会自动完成这些工作：
 
-1. 创建或复用 Pages 项目，并把 `wrangler.jsonc` 的项目名同步为你的项目。
-2. 创建或复用名为 `<Pages项目名>-rsvp` 的 D1 数据库，并写入绑定名 `DB`。
+1. 创建或复用 Pages 项目，并把项目名写入本地 `wrangler.rsvp.jsonc`。
+2. 创建或复用名为 `<Pages项目名>-rsvp` 的 D1 数据库，并把绑定名 `DB` 写入该本地配置。
 3. 执行 `migrations/` 中的数据库迁移。
 4. 生成 `SESSION_SECRET`，并把它和管理员密码作为 Pages Secret 上传。
-5. 把 `config/rsvp.json` 的 `enabled` 改为 `true`。
+5. 生成本地 `.env.rsvp.local` 开启标记。
 6. 运行测试和构建，部署到 Pages，再检查首页、管理页和 `/api/rsvp-status`。
 
-成功时终端会输出 `RSVP 已开启：https://<Pages项目名>.pages.dev/`。如果部署或健康检查失败，向导会恢复原来的开关；若启用版本已经上线，还会重新部署关闭版本。远端已创建的 D1 和 Secret 会保留，方便排障后重复运行同一命令。
+成功时终端会输出 `RSVP 已开启：https://<Pages项目名>.pages.dev/`。如果部署或健康检查失败，向导会恢复原来的本地开启标记；若启用版本已经上线，还会重新部署关闭版本。远端已创建的 D1 和 Secret 会保留，方便排障后重复运行同一命令。
 
-`wrangler.jsonc` 中的 D1 `database_id` 不是密码，可以保留在自己的婚礼仓库中，但不要把该配置复制到其他 Cloudflare 账号或无关项目。
+`.env.rsvp.local` 和 `wrangler.rsvp.jsonc` 都不会提交到 Git。前者只保存非敏感的开启标记，后者保存当前 Cloudflare Pages 项目和 D1 绑定；管理员密码与会话 Secret 仍只保存在 Cloudflare。
 
 ### 启用后验证
 
@@ -132,26 +132,17 @@ npm run setup:rsvp
 
 ### 日常更新部署
 
-向导会把 Pages 项目名和 D1 绑定写入 `wrangler.jsonc`。以后修改邀请函后，在项目根目录运行：
+向导会把 Pages 项目名和 D1 绑定写入本地 `wrangler.rsvp.jsonc`。以后修改邀请函后，在项目根目录运行：
 
 ```bash
 npm run deploy
 ```
 
-该命令会先运行全部测试和构建，再部署到已经绑定的 Pages 项目。不要为同一份邀请函另建第二个 Pages 项目。若此前使用 Cloudflare 的 Git 自动部署，也应确认控制台的 D1 绑定和 Secret 与 `wrangler.jsonc` 一致，并固定使用一种生产发布流程。
+该命令会先运行全部测试，以 `rsvp` mode 构建，再使用本地 Wrangler 配置部署到已经绑定的 Pages 项目。不要为同一份邀请函另建第二个 Pages 项目。启用 RSVP 后请固定使用 `npm run deploy`；Git 自动部署读取不到本机的忽略文件，会按模板默认关闭状态构建。
 
 ### 关闭 RSVP
 
-把 `config/rsvp.json` 改回：
-
-```json
-{
-  "enabled": false,
-  "apiUrl": "/api/rsvp"
-}
-```
-
-然后运行 `npm run deploy`。关闭后普通页面不再显示或加载 RSVP，`/admin/` 只显示关闭说明。关闭页面入口不会删除 D1 中的宾客数据，也不会删除 Pages Secret。若保留了这些远端资源，以后可以重新运行 `npm run setup:rsvp` 开启。
+删除 `.env.rsvp.local`，然后运行 `npm run deploy`。部署命令仍使用 `wrangler.rsvp.jsonc` 保留 D1 绑定，但会按模板默认关闭状态构建。关闭后普通页面不再显示或加载 RSVP，`/admin/` 只显示关闭说明。关闭页面入口不会删除 D1 中的宾客数据，也不会删除 Pages Secret；重新运行 `npm run setup:rsvp` 可以再次开启。
 
 ### 彻底清理 RSVP 数据
 
@@ -159,7 +150,7 @@ npm run deploy
 2. 先按上一节关闭 RSVP 并重新部署。
 3. 在 Cloudflare 控制台进入 **Storage & Databases → D1**，删除 `<Pages项目名>-rsvp` 数据库。
 4. 进入对应 Pages 项目的 **Settings → Variables and Secrets**，删除 `ADMIN_PASSWORD` 和 `SESSION_SECRET`。
-5. 从 `wrangler.jsonc` 删除 `d1_databases` 配置。
+5. 删除本机的 `wrangler.rsvp.jsonc`；它已被 Git 忽略，不影响模板默认配置。
 
 删除数据库后无法恢复。只想临时停止收集时不要执行彻底清理，关闭前端入口即可。
 
@@ -167,10 +158,10 @@ npm run deploy
 
 - `wrangler` 提示 Node.js 版本过低：升级到 Node.js 22 或更高版本，重新运行 `npm install`。
 - 登录失败：运行 `npx wrangler login`，浏览器授权完成后重新执行向导。
-- 页面提示 RSVP 尚未配置：检查 `wrangler.jsonc` 中绑定名是否严格为 `DB`，并确认部署的是向导选择的 Pages 项目。
-- 页面提示表不存在：运行 `npx wrangler d1 migrations apply DB --remote`，再执行 `npm run deploy`。
+- 页面提示 RSVP 尚未配置：检查 `wrangler.rsvp.jsonc` 中绑定名是否严格为 `DB`，并确认部署的是向导选择的 Pages 项目。
+- 页面提示表不存在：运行 `npx wrangler d1 migrations apply DB --remote --config wrangler.rsvp.jsonc`，再执行 `npm run deploy`。
 - 管理后台尚未配置：重新运行 `npm run setup:rsvp`，输入新的管理员密码以刷新两个 Secret。
-- 部署后入口仍隐藏：确认 `config/rsvp.json` 中 `enabled` 为 `true`，清除 Pages 部署缓存并检查最新生产部署。
+- 部署后入口仍隐藏：确认 `.env.rsvp.local` 存在且内容为 `VITE_RSVP_ENABLED=true`，然后重新执行 `npm run deploy`。
 - 同名数据库已经存在：直接重新运行向导；它会查询并复用 `<Pages项目名>-rsvp`，不会重复创建。
 - 自定义域名或 `pages.dev` 在某个网络不可达：先分别用手机流量和 Wi-Fi 验证。网络可达性因地区和运营商而异，不代表 RSVP 代码本身异常。
 

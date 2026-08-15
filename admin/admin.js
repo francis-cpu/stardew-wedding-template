@@ -1,4 +1,4 @@
-import rsvpConfig from '../config/rsvp.json' with { type: 'json' }
+import rsvpConfig from '../rsvp-config.js'
 
 if (!rsvpConfig.enabled) {
   document.querySelector('#rsvp-disabled').hidden = false

@@ -1,14 +1,6 @@
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "stardew-wedding-template",
-	"compatibility_date": "2026-08-01",
-	"pages_build_output_dir": "./dist",
-	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "stardew-wedding-template-rsvp",
-			"database_id": "e7066ccb-4162-4ef6-a49d-d2dcce83c215",
-			"remote": true
-		}
-	]
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "stardew-wedding-template",
+  "compatibility_date": "2026-08-01",
+  "pages_build_output_dir": "./dist"
 }

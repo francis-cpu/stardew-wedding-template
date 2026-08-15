@@ -1,11 +1,11 @@
 export async function configureRsvp(input, deps) {
-  const original = await deps.readRsvpConfig()
+  const originalLocalState = await deps.readLocalRsvpState()
   let deployedEnabledBuild = false
   const projectName = input.projectName.trim()
   if (!/^[a-z0-9-]{1,58}$/.test(projectName)) {
     throw new Error('Pages 项目名只能包含小写字母、数字和连字符。')
   }
-  if (input.adminPassword.length < 12) throw new Error('管理员密码至少需要 12 个字符。')
+  if (input.adminPassword.length < 6) throw new Error('管理员密码至少需要 6 个字符。')
 
   try {
     await deps.ensureLogin()
@@ -20,23 +20,20 @@ export async function configureRsvp(input, deps) {
     }
 
     await deps.ensureD1Binding(projectName)
-    await deps.run('wrangler', ['d1', 'migrations', 'apply', 'DB', '--remote'], { stdio: 'inherit' })
+    await deps.run('wrangler', ['d1', 'migrations', 'apply', 'DB', '--remote', '--config', 'wrangler.rsvp.jsonc'], { stdio: 'inherit' })
     await deps.uploadSecrets(projectName, {
       ADMIN_PASSWORD: input.adminPassword,
       SESSION_SECRET: deps.randomSecret(),
     })
-    await deps.writeRsvpConfig({ ...original, enabled: true })
-    await deps.run('npm', ['test'], { stdio: 'inherit' })
-    await deps.run('npm', ['run', 'build'], { stdio: 'inherit' })
-    await deps.run('wrangler', ['pages', 'deploy', 'dist', '--project-name', projectName], { stdio: 'inherit' })
+    await deps.enableLocalRsvp()
+    await deps.deploy()
     deployedEnabledBuild = true
     await deps.verifyDeployment(projectName)
     deps.log(`RSVP 已开启：https://${projectName}.pages.dev/`)
   } catch (error) {
-    await deps.writeRsvpConfig(original)
+    await deps.restoreLocalRsvp(originalLocalState)
     if (deployedEnabledBuild) {
-      await deps.run('npm', ['run', 'build'], { stdio: 'inherit' })
-      await deps.run('wrangler', ['pages', 'deploy', 'dist', '--project-name', projectName], { stdio: 'inherit' })
+      await deps.deploy()
     }
     throw error
   }

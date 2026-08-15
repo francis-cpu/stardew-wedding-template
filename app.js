@@ -1,4 +1,4 @@
-import rsvpConfig from './config/rsvp.json' with { type: 'json' }
+import rsvpConfig from './rsvp-config.js'
 
 const weddingConfig = {
   groom: '新郎姓名',

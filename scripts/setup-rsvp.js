@@ -5,11 +5,13 @@ import { join } from 'node:path'
 import { stdin as input, stdout as output } from 'node:process'
 import { createInterface } from 'node:readline/promises'
 import { configureWranglerProject } from './lib/cloudflare-config.js'
+import { deployRsvp } from './lib/deploy-rsvp.js'
 import { runCommand as run } from './lib/run-command.js'
 import { configureRsvp } from './lib/setup-rsvp.js'
 
-const rsvpConfigUrl = new URL('../config/rsvp.json', import.meta.url)
 const wranglerConfigUrl = new URL('../wrangler.jsonc', import.meta.url)
+const localEnvironmentUrl = new URL('../.env.rsvp.local', import.meta.url)
+const localWranglerUrl = new URL('../wrangler.rsvp.jsonc', import.meta.url)
 
 function parseJsonc(source) {
   return JSON.parse(source
@@ -38,23 +40,55 @@ async function ensureLogin() {
 }
 
 async function ensureD1Binding(projectName) {
+  let source
+  try {
+    source = await readFile(localWranglerUrl, 'utf8')
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error
+    source = await readFile(wranglerConfigUrl, 'utf8')
+  }
   let config = configureWranglerProject(
-    parseJsonc(await readFile(wranglerConfigUrl, 'utf8')),
+    parseJsonc(source),
     projectName,
   )
-  await writeFile(wranglerConfigUrl, `${JSON.stringify(config, null, 2)}\n`)
+  await writeFile(localWranglerUrl, `${JSON.stringify(config, null, 2)}\n`)
   if (config.d1_databases?.some((binding) => binding.binding === 'DB')) return
 
   const databaseName = `${projectName}-rsvp`
   const databases = JSON.parse(await run('wrangler', ['d1', 'list', '--json']))
   const existing = databases.find((database) => database.name === databaseName)
   if (!existing) {
-    await run('wrangler', ['d1', 'create', databaseName, '--binding', 'DB', '--update-config', '--use-remote'], { stdio: 'inherit' })
+    await run('wrangler', ['d1', 'create', databaseName, '--binding', 'DB', '--update-config', '--use-remote', '--config', 'wrangler.rsvp.jsonc'], { stdio: 'inherit' })
     return
   }
 
   config = configureWranglerProject(config, projectName, existing)
-  await writeFile(wranglerConfigUrl, `${JSON.stringify(config, null, 2)}\n`)
+  await writeFile(localWranglerUrl, `${JSON.stringify(config, null, 2)}\n`)
+}
+
+async function readLocalRsvpState() {
+  try {
+    return await readFile(localEnvironmentUrl, 'utf8')
+  } catch (error) {
+    if (error.code === 'ENOENT') return null
+    throw error
+  }
+}
+
+async function restoreLocalRsvp(value) {
+  if (value === null) {
+    await rm(localEnvironmentUrl, { force: true })
+    return
+  }
+  await writeFile(localEnvironmentUrl, value)
+}
+
+async function deploy() {
+  await deployRsvp({
+    hasLocalWrangler: true,
+    hasEnableMarker: (await readLocalRsvpState()) !== null,
+    run,
+  })
 }
 
 async function readHidden(label) {
@@ -122,15 +156,17 @@ async function main() {
   const prompt = createInterface({ input, output })
   const projectName = await prompt.question('Pages 项目名：')
   prompt.close()
-  const adminPassword = await readHidden('管理员密码（至少 12 个字符）：')
+  const adminPassword = await readHidden('管理员密码（至少 6 个字符）：')
 
   await configureRsvp({ projectName, adminPassword }, {
     run,
-    readRsvpConfig: async () => JSON.parse(await readFile(rsvpConfigUrl, 'utf8')),
-    writeRsvpConfig: async (value) => writeFile(rsvpConfigUrl, `${JSON.stringify(value, null, 2)}\n`),
+    readLocalRsvpState,
+    enableLocalRsvp: async () => writeFile(localEnvironmentUrl, 'VITE_RSVP_ENABLED=true\n'),
+    restoreLocalRsvp,
     ensureLogin,
     ensureD1Binding,
     uploadSecrets,
+    deploy,
     verifyDeployment,
     randomSecret: () => randomBytes(48).toString('base64url'),
     log: console.log,

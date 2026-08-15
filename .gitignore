@@ -4,3 +4,5 @@ dist/
 .playwright-cli/
 .wrangler/
 output/
+.env.rsvp.local
+wrangler.rsvp.jsonc

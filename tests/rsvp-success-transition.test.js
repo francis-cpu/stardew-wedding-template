@@ -35,6 +35,20 @@ test('locks the RSVP height before hiding the submitted form', () => {
   assert.deepEqual(success.focusOptions, { preventScroll: true })
 })
 
+test('preserves fractional layout heights without rounding', () => {
+  const form = { hidden: false }
+  const section = {
+    style: {},
+    classList: classList(),
+    getBoundingClientRect: () => ({ height: form.hidden ? 525 : 1032.1875 }),
+  }
+  const success = { hidden: true, classList: classList(), focus() {} }
+
+  enterRsvpSuccessState({ section, form, success })
+
+  assert.equal(section.style.minHeight, '1032.1875px')
+})
+
 test('restores the form and releases the locked RSVP height for editing', () => {
   const section = { style: { minHeight: '1032px' }, classList: classList() }
   section.classList.add('is-complete')

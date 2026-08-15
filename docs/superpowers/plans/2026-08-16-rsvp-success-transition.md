@@ -69,7 +69,7 @@ Expected: FAIL with `does not provide an export named 'enterRsvpSuccessState'`.
 
 ```js
 export function enterRsvpSuccessState({ section, form, success }) {
-  section.style.minHeight = `${Math.ceil(section.getBoundingClientRect().height)}px`
+  section.style.minHeight = `${section.getBoundingClientRect().height}px`
   section.classList.add('is-complete')
   form.hidden = true
   success.hidden = false

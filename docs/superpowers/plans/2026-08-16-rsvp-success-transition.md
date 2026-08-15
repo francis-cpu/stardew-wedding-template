@@ -113,10 +113,15 @@ git commit -m "fix(rsvp): 锁定成功态切换前的布局高度"
 
 - [ ] **Step 1: 写入退出成功态的失败测试**
 
-在 `tests/rsvp-success-transition.test.js` 追加：
+把文件顶部的导入改为：
 
 ```js
-import { exitRsvpSuccessState } from '../rsvp-client.js'
+import { enterRsvpSuccessState, exitRsvpSuccessState } from '../rsvp-client.js'
+```
+
+并在已有测试之后追加：
+
+```js
 
 test('restores the form and releases the locked RSVP height for editing', () => {
   const section = { style: { minHeight: '1032px' }, classList: classList() }
@@ -215,4 +220,3 @@ git status --short
 ```
 
 Expected: all tests pass; build exits 0; default config remains disabled; worktree is clean after commit.
-

@@ -1,4 +1,14 @@
+export function enterRsvpSuccessState({ section, form, success }) {
+  section.style.minHeight = `${Math.ceil(section.getBoundingClientRect().height)}px`
+  section.classList.add('is-complete')
+  form.hidden = true
+  success.hidden = false
+  success.classList.add('is-visible')
+  success.focus({ preventScroll: true })
+}
+
 export function initializeRsvp(rsvpConfig) {
+const rsvpSection = document.querySelector('#rsvp')
 const rsvpForm = document.querySelector('#rsvp-form')
 const rsvpSuccess = document.querySelector('#rsvp-success')
 const rsvpSuccessTitle = document.querySelector('#rsvp-success-title')
@@ -48,8 +58,7 @@ function formatAccommodationDateTime(value) {
 }
 
 function showRsvpSuccess(rsvp) {
-  rsvpForm.hidden = true
-  rsvpSuccess.hidden = false
+  enterRsvpSuccessState({ section: rsvpSection, form: rsvpForm, success: rsvpSuccess })
   rsvpSuccessTitle.textContent = `${rsvp.guestName}，已收到你的答复`
   const accommodation = rsvp.needsAccommodation
     ? ` · 住宿：${formatAccommodationDateTime(rsvp.checkInAt)} 至 ${formatAccommodationDateTime(rsvp.checkOutAt)}`

@@ -753,7 +753,7 @@ await configureRsvp({ projectName, adminPassword }, {
   },
   "devDependencies": {
     "vite": "^7.1.1",
-    "wrangler": "^4.80.0"
+    "wrangler": "^4.123.0"
   }
 }
 ```
@@ -764,7 +764,7 @@ await configureRsvp({ projectName, adminPassword }, {
 
 Run: `node --test tests/setup-rsvp.test.js`
 
-Expected: 2 tests passed；首次执行顺序正确；部署失败恢复 `enabled: false`。
+Expected: 3 tests passed；首次执行顺序正确；部署失败恢复 `enabled: false`；健康检查失败会重新部署关闭状态。
 
 - [ ] **Step 7: 提交 setup 向导**
 

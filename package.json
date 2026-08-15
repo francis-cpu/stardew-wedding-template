@@ -5,10 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
+    "test": "node --test",
     "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0"
+    "preview": "vite preview --host 0.0.0.0",
+    "dev:cloudflare": "npm run build && wrangler pages dev dist",
+    "setup:rsvp": "node scripts/setup-rsvp.js",
+    "deploy": "npm test && npm run build && wrangler pages deploy dist"
   },
   "devDependencies": {
-    "vite": "^7.1.1"
+    "vite": "^7.1.1",
+    "wrangler": "^4.123.0"
   }
 }

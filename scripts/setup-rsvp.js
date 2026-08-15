@@ -1,4 +1,3 @@
-import { spawn } from 'node:child_process'
 import { randomBytes } from 'node:crypto'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -6,32 +5,11 @@ import { join } from 'node:path'
 import { stdin as input, stdout as output } from 'node:process'
 import { createInterface } from 'node:readline/promises'
 import { configureWranglerProject } from './lib/cloudflare-config.js'
+import { runCommand as run } from './lib/run-command.js'
 import { configureRsvp } from './lib/setup-rsvp.js'
 
 const rsvpConfigUrl = new URL('../config/rsvp.json', import.meta.url)
 const wranglerConfigUrl = new URL('../wrangler.jsonc', import.meta.url)
-
-function executableFor(command) {
-  if (command === 'wrangler') return process.platform === 'win32' ? 'npx.cmd' : 'npx'
-  if (command === 'npm' && process.platform === 'win32') return 'npm.cmd'
-  return command
-}
-
-function run(command, args, options = {}) {
-  const finalArgs = command === 'wrangler' ? ['wrangler', ...args] : args
-  return new Promise((resolve, reject) => {
-    const child = spawn(executableFor(command), finalArgs, { ...options, shell: false })
-    let stdout = ''
-    let stderr = ''
-    child.stdout?.on('data', (chunk) => { stdout += chunk })
-    child.stderr?.on('data', (chunk) => { stderr += chunk })
-    child.on('error', reject)
-    child.on('exit', (code) => {
-      if (code === 0) resolve(stdout)
-      else reject(new Error(`${command} ${args.join(' ')} 执行失败（退出码 ${code}）。${stderr ? `\n${stderr.trim()}` : ''}`))
-    })
-  })
-}
 
 function parseJsonc(source) {
   return JSON.parse(source

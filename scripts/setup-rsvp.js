@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { stdin as input, stdout as output } from 'node:process'
 import { createInterface } from 'node:readline/promises'
+import { configureWranglerProject } from './lib/cloudflare-config.js'
 import { configureRsvp } from './lib/setup-rsvp.js'
 
 const rsvpConfigUrl = new URL('../config/rsvp.json', import.meta.url)
@@ -59,7 +60,11 @@ async function ensureLogin() {
 }
 
 async function ensureD1Binding(projectName) {
-  const config = parseJsonc(await readFile(wranglerConfigUrl, 'utf8'))
+  let config = configureWranglerProject(
+    parseJsonc(await readFile(wranglerConfigUrl, 'utf8')),
+    projectName,
+  )
+  await writeFile(wranglerConfigUrl, `${JSON.stringify(config, null, 2)}\n`)
   if (config.d1_databases?.some((binding) => binding.binding === 'DB')) return
 
   const databaseName = `${projectName}-rsvp`
@@ -70,11 +75,7 @@ async function ensureD1Binding(projectName) {
     return
   }
 
-  config.d1_databases = [{
-    binding: 'DB',
-    database_name: databaseName,
-    database_id: existing.uuid,
-  }]
+  config = configureWranglerProject(config, projectName, existing)
   await writeFile(wranglerConfigUrl, `${JSON.stringify(config, null, 2)}\n`)
 }
 

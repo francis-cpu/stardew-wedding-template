@@ -12,14 +12,14 @@ test('updates the Pages project name while preserving an existing DB binding', (
 
 test('adds a discovered D1 database without discarding other config', () => {
   const result = configureWranglerProject(
-    { name: 'template', compatibility_date: '2026-08-16' },
+    { name: 'template', compatibility_date: '2026-08-01' },
     'wedding-demo',
     { name: 'wedding-demo-rsvp', uuid: 'db-id' },
   )
 
   assert.deepEqual(result, {
     name: 'wedding-demo',
-    compatibility_date: '2026-08-16',
+    compatibility_date: '2026-08-01',
     d1_databases: [{ binding: 'DB', database_name: 'wedding-demo-rsvp', database_id: 'db-id' }],
   })
 })

@@ -736,7 +736,7 @@ await configureRsvp({ projectName, adminPassword }, {
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "stardew-wedding-template",
-  "compatibility_date": "2026-08-16",
+  "compatibility_date": "2026-08-01",
   "pages_build_output_dir": "./dist"
 }
 ```

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { enterRsvpSuccessState } from '../rsvp-client.js'
+import { enterRsvpSuccessState, exitRsvpSuccessState } from '../rsvp-client.js'
 
 function classList() {
   const values = new Set()
@@ -33,4 +33,18 @@ test('locks the RSVP height before hiding the submitted form', () => {
   assert.equal(success.hidden, false)
   assert.equal(success.classList.contains('is-visible'), true)
   assert.deepEqual(success.focusOptions, { preventScroll: true })
+})
+
+test('restores the form and releases the locked RSVP height for editing', () => {
+  const section = { style: { minHeight: '1032px' }, classList: classList() }
+  section.classList.add('is-complete')
+  const form = { hidden: true }
+  const success = { hidden: false }
+
+  exitRsvpSuccessState({ section, form, success })
+
+  assert.equal(form.hidden, false)
+  assert.equal(success.hidden, true)
+  assert.equal(section.classList.contains('is-complete'), false)
+  assert.equal(section.style.minHeight, '')
 })

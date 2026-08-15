@@ -7,6 +7,13 @@ export function enterRsvpSuccessState({ section, form, success }) {
   success.focus({ preventScroll: true })
 }
 
+export function exitRsvpSuccessState({ section, form, success }) {
+  form.hidden = false
+  success.hidden = true
+  section.classList.remove('is-complete')
+  section.style.minHeight = ''
+}
+
 export function initializeRsvp(rsvpConfig) {
 const rsvpSection = document.querySelector('#rsvp')
 const rsvpForm = document.querySelector('#rsvp-form')
@@ -164,8 +171,7 @@ rsvpForm.addEventListener('submit', async (event) => {
 
 document.querySelector('#rsvp-edit').addEventListener('click', () => {
   fillRsvpForm(savedRsvp)
-  rsvpSuccess.hidden = true
-  rsvpForm.hidden = false
+  exitRsvpSuccessState({ section: rsvpSection, form: rsvpForm, success: rsvpSuccess })
   rsvpForm.scrollIntoView({ behavior: 'smooth', block: 'center' })
 })
 

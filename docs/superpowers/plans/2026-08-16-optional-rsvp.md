@@ -12,7 +12,8 @@
 
 ## 文件结构
 
-- Create: `config/rsvp.json` — 唯一的公开 RSVP 功能开关与 API 路径。
+- Create: `config/rsvp.default.json` — 用于回归测试和恢复关闭状态的出厂默认值。
+- Create: `config/rsvp.json` — 实际 RSVP 功能开关与 API 路径；向导只修改此文件。
 - Modify: `index.html` — 默认隐藏的 RSVP 表单、成功状态和浮动入口。
 - Modify: `app.js` — 只在开关开启时显示入口并动态加载 RSVP 客户端。
 - Create: `rsvp-client.js` — 表单校验、提交、修改和 localStorage 凭证处理。
@@ -52,10 +53,13 @@ const root = new URL('../', import.meta.url)
 const read = (path) => readFile(new URL(path, root), 'utf8')
 
 test('ships RSVP disabled and hidden by default', async () => {
+  const defaults = JSON.parse(await read('config/rsvp.default.json'))
   const config = JSON.parse(await read('config/rsvp.json'))
   const html = await read('index.html')
 
-  assert.deepEqual(config, { enabled: false, apiUrl: '/api/rsvp' })
+  assert.deepEqual(defaults, { enabled: false, apiUrl: '/api/rsvp' })
+  assert.equal(typeof config.enabled, 'boolean')
+  assert.equal(config.apiUrl, defaults.apiUrl)
   assert.match(html, /<section class="rsvp story-section" id="rsvp" data-rsvp-ui hidden>/)
   assert.match(html, /data-rsvp-shortcut hidden/)
 })

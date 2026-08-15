@@ -121,6 +121,64 @@
         </article>
       </section>
 
+      <section class="rsvp story-section" id="rsvp" data-rsvp-ui hidden>
+        <header class="section-heading light reveal"><svg><use href="#icon-leaf" /></svg><p>JOIN THE CELEBRATION</p><h2>确认赴约</h2></header>
+        <form class="rsvp-card reveal pop-in" id="rsvp-form" novalidate>
+          <div class="rsvp-card-title">
+            <span>PELICAN TOWN</span>
+            <strong>村民赴约登记簿</strong>
+            <p>请在这里留下你的信息，方便我们为你准备席位。</p>
+          </div>
+          <label class="form-field">
+            <span>宾客姓名 <b>必填</b></span>
+            <input type="text" name="guestName" autocomplete="name" maxlength="30" placeholder="请输入你的姓名" required />
+          </label>
+          <label class="form-field">
+            <span>出席人数 <b>含本人</b></span>
+            <select name="partySize">
+              <option value="1">1 人</option><option value="2">2 人</option><option value="3">3 人</option>
+              <option value="4">4 人</option><option value="5">5 人</option><option value="6">6 人</option>
+            </select>
+          </label>
+          <fieldset class="attendance-field" id="accommodation-field">
+            <legend>是否需要住宿 <b>必填</b></legend>
+            <div class="attendance-options">
+              <label><input type="radio" name="needsAccommodation" value="yes" required /><span>需要住宿</span></label>
+              <label><input type="radio" name="needsAccommodation" value="no" required /><span>无需住宿</span></label>
+            </div>
+          </fieldset>
+          <div id="accommodation-dates" hidden>
+            <label class="form-field">
+              <span>入住日期时间 <b>必填</b></span>
+              <input type="datetime-local" name="checkInAt" />
+            </label>
+            <label class="form-field">
+              <span>退房日期时间 <b>必填</b></span>
+              <input type="datetime-local" name="checkOutAt" />
+            </label>
+          </div>
+          <label class="form-field">
+            <span>联系电话 <b>选填</b></span>
+            <input type="tel" name="phone" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="方便我们与你确认" />
+          </label>
+          <label class="form-field">
+            <span>留言祝福 <b>选填</b></span>
+            <textarea name="message" maxlength="200" rows="4" placeholder="写下想对我们说的话……"></textarea>
+            <small><output id="message-count">0</output> / 200</small>
+          </label>
+          <p class="form-error" id="rsvp-error" role="alert" hidden></p>
+          <button class="pixel-button rsvp-submit" type="submit">保存赴约信息</button>
+          <p class="form-note">提交即表示同意我们仅为本次婚礼筹备用途保存以上信息。</p>
+        </form>
+        <article class="rsvp-success reveal" id="rsvp-success" aria-live="polite" hidden>
+          <img src="/assets/junimo.gif" alt="祝尼魔" />
+          <p>登记完成</p>
+          <h3 id="rsvp-success-title">已收到你的答复</h3>
+          <span id="rsvp-success-summary"></span>
+          <button class="pixel-button" id="rsvp-edit" type="button">修改赴约信息</button>
+        </article>
+      </section>
+
       <section class="guests story-section" id="guests">
         <header class="section-heading reveal"><svg><use href="#icon-leaf" /></svg><p>FRIENDS OF THE VALLEY</p><h2>婚礼当日见</h2></header>
         <article class="blessing-card reveal pop-in">
@@ -166,6 +224,7 @@
     <nav class="floating-tools" aria-label="页面工具">
       <button id="music-toggle" class="tool-slot" type="button" aria-label="播放背景音乐" aria-pressed="false"><svg><use href="#icon-music" /></svg></button>
       <button class="tool-slot" type="button" data-scroll="#map" aria-label="查看地点"><svg><use href="#icon-map" /></svg></button>
+      <button class="tool-slot" type="button" data-scroll="#rsvp" data-rsvp-shortcut hidden aria-label="填写赴约信息"><svg><use href="#icon-leaf" /></svg></button>
     </nav>
     <audio id="wedding-music" src="/assets/wedding-bgm.mp3" preload="metadata" loop></audio>
     <p id="audio-status" class="sr-only" aria-live="polite"></p>

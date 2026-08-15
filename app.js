@@ -1,3 +1,5 @@
+import rsvpConfig from './config/rsvp.json' with { type: 'json' }
+
 const weddingConfig = {
   groom: '新郎姓名',
   bride: '新娘姓名',
@@ -70,6 +72,13 @@ document.querySelectorAll('[data-scroll]').forEach((button) => {
     document.querySelector(button.dataset.scroll)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   })
 })
+
+if (rsvpConfig.enabled) {
+  document.querySelectorAll('[data-rsvp-ui], [data-rsvp-shortcut]').forEach((element) => {
+    element.hidden = false
+  })
+  import('./rsvp-client.js')
+}
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
 const revealElements = document.querySelectorAll('.reveal')

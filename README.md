@@ -5,6 +5,21 @@
 
 不想自己改代码？可直接使用 [交给 AI 的一键定制提示词](AI_SETUP_PROMPT.md)。
 
+## 请作者喝杯咖啡
+
+如果这个模板帮到了你，欢迎通过微信或支付宝支持作者。感谢你的鼓励！
+
+<table>
+  <tr>
+    <th align="center">微信</th>
+    <th align="center">支付宝</th>
+  </tr>
+  <tr>
+    <td align="center"><a href="assets/wechat-pay.jpg"><img src="assets/wechat-pay.jpg" alt="微信收款码" width="220" /></a></td>
+    <td align="center"><a href="assets/alipay-pay.jpg"><img src="assets/alipay-pay.jpg" alt="支付宝收款码" width="220" /></a></td>
+  </tr>
+</table>
+
 ## 快速开始
 
 建议使用 Node.js 22 或更高版本；可选的 Cloudflare RSVP 配置向导也要求这一版本。

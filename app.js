@@ -16,7 +16,8 @@ const weddingConfig = {
   schedule: [
     { time: '11:00', event: '签到' },
     { time: '11:30', event: '仪式' },
-    { time: '12:00', event: '喜宴' }
+    { time: '12:00', event: '喜宴' },
+    { time: '13:00', event: '合影' }
   ],
 }
 

@@ -4,20 +4,19 @@ const weddingConfig = {
   bride: '高晨',
   groomEn: 'Deng Bo',
   brideEn: 'Gao Chen',
-  weddingDate: '2026-10-05T11:30:00+08:00',
-  dateDot: '2026.10.05',
-  dateCn: '二〇二六年十月五日',
+  weddingDate: '2026-10-03T11:30:00+08:00',
+  dateDot: '2026.10.03',
+  dateCn: '二〇二六年十月三日',
   calendarMonth: 'OCT',
   calendarDay: '05',
   calendarYear: '2026',
   venue: '江西省宜春市万载县田江村易家车',
-  venueShort: '万载县易家车',
+  venueShort: '江西省万载县易家车',
   navigationUrl: 'https://uri.amap.com/search?keyword=万载县易家车&src=stardew-wedding&callnative=1',
   schedule: [
     { time: '11:00', event: '签到' },
     { time: '11:30', event: '仪式' },
-    { time: '12:00', event: '喜宴' },
-    { time: '待确认', event: '合影' }
+    { time: '12:00', event: '喜宴' }
   ],
 }
 

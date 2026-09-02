@@ -1,24 +1,23 @@
 import rsvpConfig from './rsvp-config.js'
-
 const weddingConfig = {
-  groom: '新郎姓名',
-  bride: '新娘姓名',
-  groomLatin: 'GROOM',
-  brideLatin: 'BRIDE',
-  weddingDate: '2030-10-01T00:00:00+08:00',
-  dateDot: '2030 · 10 · 01',
-  dateCn: '2030年10月1日 · 星期二',
+  groom: '邓波',
+  bride: '高晨',
+  groomEn: 'Deng Bo',
+  brideEn: 'Gao Chen',
+  weddingDate: '2026-10-05T11:30:00+08:00',
+  dateDot: '2026.10.05',
+  dateCn: '二〇二六年十月五日',
   calendarMonth: 'OCT',
-  calendarDay: '01',
-  calendarYear: '2030',
-  venue: '示例市幸福区星露谷宴会厅',
-  venueShort: '星露谷宴会厅',
-  navigationUrl: 'https://uri.amap.com/search?keyword=%E7%A4%BA%E4%BE%8B%E5%B8%82%E5%B9%B8%E7%A6%8F%E5%8C%BA%E6%98%9F%E9%9C%B2%E8%B0%B7%E5%AE%B4%E4%BC%9A%E5%8E%85&src=stardew-wedding&callnative=1',
+  calendarDay: '05',
+  calendarYear: '2026',
+  venue: '江西省宜春市万载县田江村易家车',
+  venueShort: '万载县易家车',
+  navigationUrl: 'https://uri.amap.com/search?keyword=万载县易家车&src=stardew-wedding&callnative=1',
   schedule: [
-    { label: '签到', time: '待确认', description: '领取今日任务，与老朋友相见' },
-    { label: '仪式', time: '待确认', description: '见证拥抱、誓言与交换戒指' },
-    { label: '喜宴', time: '待确认', description: '共享一场丰盛的秋日宴席' },
-    { label: '合影', time: '待确认', description: '保存这一份快乐存档' },
+    { time: '11:00', event: '签到' },
+    { time: '11:30', event: '仪式' },
+    { time: '12:00', event: '喜宴' },
+    { time: '待确认', event: '合影' }
   ],
 }
 

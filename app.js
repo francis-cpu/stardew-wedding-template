@@ -6,9 +6,9 @@ const weddingConfig = {
   brideLatin: 'Gao Chen',
   weddingDate: '2026-10-03T11:30:00+08:00',
   dateDot: '2026.10.03',
-  dateCn: '二〇二六年十月三日',
+  dateCn: '二〇二六年十月三日*星期六',
   calendarMonth: 'OCT',
-  calendarDay: '05',
+  calendarDay: '03',
   calendarYear: '2026',
   venue: '江西省宜春市万载县田江村易家车',
   venueShort: '江西省万载县易家车',
@@ -17,6 +17,7 @@ const weddingConfig = {
     { label: '签到', time: '11:00', description: '领取今日任务，与老朋友相见' },
     { label: '仪式', time: '11:30', description: '见证拥抱、誓言与交换戒指' },
     { label: '喜宴', time: '12:00', description: '共享一场丰盛的秋日宴席' },
+    { label: '合影', time: '13:00', description: '保存这一份快乐存档' }
   ],
 }
 

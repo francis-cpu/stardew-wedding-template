@@ -2,8 +2,8 @@ import rsvpConfig from './rsvp-config.js'
 const weddingConfig = {
   groom: '邓波',
   bride: '高晨',
-  groomEn: 'Deng Bo',
-  brideEn: 'Gao Chen',
+  groomLatin: 'Deng Bo',
+  brideLatin: 'Gao Chen',
   weddingDate: '2026-10-03T11:30:00+08:00',
   dateDot: '2026.10.03',
   dateCn: '二〇二六年十月三日',
@@ -14,10 +14,9 @@ const weddingConfig = {
   venueShort: '江西省万载县易家车',
   navigationUrl: 'https://uri.amap.com/search?keyword=万载县易家车&src=stardew-wedding&callnative=1',
   schedule: [
-    { time: '11:00', event: '签到' },
-    { time: '11:30', event: '仪式' },
-    { time: '12:00', event: '喜宴' },
-    { time: '13:00', event: '合影' }
+    { label: '签到', time: '11:00', description: '领取今日任务，与老朋友相见' },
+    { label: '仪式', time: '11:30', description: '见证拥抱、誓言与交换戒指' },
+    { label: '喜宴', time: '12:00', description: '共享一场丰盛的秋日宴席' },
   ],
 }
 

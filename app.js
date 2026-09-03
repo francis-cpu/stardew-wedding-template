@@ -279,7 +279,15 @@ music.addEventListener('error', () => {
   if (currentMusicMode === 'file') startSynthMusic()
 })
 musicButton.addEventListener('click', () => { isMusicPlaying() ? pauseMusic() : playMusic() })
-window.setTimeout(() => { playMusic() }, 0)
+/*window.setTimeout(() => { playMusic() }, 0)*/
+// 等待用户首次触摸或点击后自动播放音乐
+const autoPlayOnInteraction = () => {
+  playMusic()
+  document.removeEventListener('touchstart', autoPlayOnInteraction)
+  document.removeEventListener('click', autoPlayOnInteraction)
+}
+document.addEventListener('touchstart', autoPlayOnInteraction, { once: true })
+document.addEventListener('click', autoPlayOnInteraction, { once: true })
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {

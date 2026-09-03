@@ -12,7 +12,7 @@ const weddingConfig = {
   calendarYear: '2026',
   venue: '江西省宜春市万载县田江村易家车',
   venueShort: '江西省万载县易家车',
-  navigationUrl: 'https://uri.amap.com/search?keyword=万载县鹅峰乡易家车&src=stardew-wedding&callnative=1',
+  navigationUrl: 'https://surl.amap.com/1S8Vu1Mg00S',
   schedule: [
     { label: '签到', time: '11:00', description: '领取今日任务，与老朋友相见' },
     { label: '仪式', time: '11:30', description: '见证拥抱、誓言与交换戒指' },
